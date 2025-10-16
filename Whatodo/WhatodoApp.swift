@@ -11,7 +11,7 @@ import SwiftUI
 struct WhatodoApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView()
         }
     }
 }
