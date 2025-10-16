@@ -8,17 +8,49 @@
 import SwiftUI
 
 struct HomeView: View {
+    
+    @StateObject var viewModel = ToDoViewModel()
+    
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        
+        ZStack {
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("ToDo List")
+                        .font(.system(size: 35, weight: .bold))
+                        .padding(.leading)
+                    Spacer()
+                    Image(systemName: "plus.circle.fill")
+                        .padding(.trailing, 20)
+                        .font(.system(size: 30))
+                }
+                List {
+                    ForEach(viewModel.toDoGroups){ toDoGroup in
+                        Section(header: Text(toDoGroup.title)) {
+                            ForEach(toDoGroup.toDos) { toDoItem in
+                                VStack {
+                                    HStack {
+                                        Image(systemName: toDoItem.isCompleted ? "checkmark.circle.fill" : "circle")
+                                        Text(toDoItem.title)
+                                    }
+                                    .padding(.vertical, 5)
+                                }
+                                .onTapGesture {
+                                    viewModel.toggleCompletion(group: toDoGroup, item: toDoItem)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            
+                
         }
-        .padding()
     }
 }
 
-//#Preview {
-//    ContentView()
-//}
+#Preview {
+    HomeView()
+}
