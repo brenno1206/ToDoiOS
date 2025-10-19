@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 class ToDoViewModel: ObservableObject {
     @Published var toDoGroups: [ToDoGroup] = [
@@ -32,6 +33,13 @@ class ToDoViewModel: ObservableObject {
             else { return }
 
             toDoGroups[groupIndex].toDos[itemIndex].isCompleted.toggle()
+        }
+    func deleteToDoItem(in group: ToDoGroup, at offsets: IndexSet) {
+            guard let groupIndex = toDoGroups.firstIndex(where: { $0.id == group.id }) else { return }
+            toDoGroups[groupIndex].toDos.remove(atOffsets: offsets)
+        }
+    func deleteGroup(toDoGroup: ToDoGroup) {
+        toDoGroups.remove(at: toDoGroups.firstIndex(of: toDoGroup)!)
         }
 }
 
