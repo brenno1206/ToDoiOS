@@ -12,8 +12,7 @@ enum ToDoItemPriority: String {
     case important
     case urgent
     
-    var title : String {
-        return self.rawValue.lowercased()
+    var title: String {
+        return self.rawValue.capitalized
     }
-    
 }

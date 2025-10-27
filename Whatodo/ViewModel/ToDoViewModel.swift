@@ -26,6 +26,12 @@ class ToDoViewModel: ObservableObject {
         ]),
     ]
     
+    @Published var isAddingToDoItem: Bool = false
+    
+    @Published var isEditingToDoItem: Bool = false
+    
+    
+    
     func toggleCompletion(group: ToDoGroup, item: ToDoItem) {
             guard
                 let groupIndex = toDoGroups.firstIndex(where: { $0.id == group.id }),

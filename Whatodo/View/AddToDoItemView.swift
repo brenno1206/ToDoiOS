@@ -8,11 +8,18 @@
 import SwiftUI
 
 struct AddToDoItemView: View {
+    @ObservedObject var viewModel: ToDoViewModel
+    var type: ToDoManipulating
+    var toDoGroupToEdit: ToDoGroup?
+    var toDoItemToEdit: ToDoItem?
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack{
+            Text(type.title)
+        }
     }
 }
 
 //#Preview {
-//    AddToDoItemView()
+//    AddToDoItemView(viewModel: ToDoViewModel())
 //}
