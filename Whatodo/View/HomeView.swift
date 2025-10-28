@@ -12,11 +12,11 @@ struct HomeView: View {
     @StateObject var viewModel = ToDoViewModel()
     func toDoGropuHeader(toDoGroup : ToDoGroup) -> some View {
         NavigationLink {
-            AddToDoItemView(viewModel: viewModel, type: ToDoManipulating.editGroup, toDoGroupToEdit: toDoGroup)
+            ManipulatingToDoView(viewModel: viewModel, type: ToDoManipulating.editGroup)
         } label: {
             HStack {
                 Text(toDoGroup.title)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(.blueGrayForeground)
                     .font(.system(size: 20, weight: .light))
                 Spacer()
                 Button {
@@ -31,6 +31,9 @@ struct HomeView: View {
                 }
             }
         }
+        .simultaneousGesture(TapGesture().onEnded {
+            viewModel.selectedToDoGroup = toDoGroup
+        })
     }
     
     var body: some View {
@@ -41,17 +44,18 @@ struct HomeView: View {
                         Text("ToDo List")
                             .font(.system(size: 35, weight: .bold))
                             .padding(.leading, 25)
+                            .foregroundStyle(.blueGrayForeground)
                         
                         Spacer()
                         Menu {
                             NavigationLink {
-                                AddToDoItemView(viewModel: viewModel, type: .addItem)
+                                ManipulatingToDoView(viewModel: viewModel, type: .addItem)
                             } label: {
                                 Text(ToDoManipulating.addItem.title)
                                 Image(systemName: "plus")
                             }
                             NavigationLink {
-                                AddToDoItemView(viewModel: viewModel, type: .addGroup)
+                                ManipulatingToDoView(viewModel: viewModel, type: .addGroup)
                             } label: {
                                 Text(ToDoManipulating.addGroup.title)
                                 Image(systemName: "plus.rectangle.on.rectangle")
@@ -60,32 +64,44 @@ struct HomeView: View {
                             Image(systemName: "plus.circle.fill")
                                 .padding(.trailing, 20)
                                 .font(.system(size: 30))
-                                .foregroundStyle(.green)
+                                .foregroundStyle(.blueGrayForeground)
                         }
                     }
                     List {
                         ForEach(viewModel.toDoGroups){ toDoGroup in
                             Section(header: toDoGropuHeader(toDoGroup:  toDoGroup)) {
-                                
                                 ForEach(toDoGroup.toDos) { toDoItem in
                                     NavigationLink {
-                                        AddToDoItemView(viewModel: viewModel, type: ToDoManipulating.editItem, toDoItemToEdit: toDoItem)
+                                        ManipulatingToDoView(viewModel: viewModel, type: ToDoManipulating.editItem)
+                                            
                                     } label: {
                                         VStack {
                                             HStack {
-                                                Image(systemName: toDoItem.isCompleted ? "checkmark.circle.fill" : "circle")
-                                                    .foregroundStyle(toDoItem.isCompleted ? .green : .primary)
-                                                Text(toDoItem.title)
-                                                    .strikethrough(toDoItem.isCompleted)
-                                                    .foregroundStyle(toDoItem.isCompleted ? .gray : .primary)
+                                                Button {
+                                                    viewModel.toggleCompletion(group: toDoGroup, item: toDoItem)
+                                                } label: {
+                                                    Image(systemName: toDoItem.isCompleted ? "checkmark.circle.fill" : "circle")
+                                                        .foregroundStyle(toDoItem.isCompleted ? .blueGrayBackground : .primary)
+                                                    Text(toDoItem.title)
+                                                        .strikethrough(toDoItem.isCompleted)
+                                                        .foregroundStyle(toDoItem.isCompleted ? .gray : .primary)
+                                                }
+                                                .buttonStyle(.plain)
+
                                                 
+                                                
+                                                Spacer()
+                                                Circle()
+                                                    .frame(width: 12, height: 12)
+                                                    .foregroundStyle(toDoItem.isCompleted ? Color.blueGrayBackground : toDoItem.priority.color)
                                             }
                                             .padding(.vertical, 5)
                                         }
-                                        .onTapGesture {
-                                            viewModel.toggleCompletion(group: toDoGroup, item: toDoItem)
-                                        }
                                     }
+                                    .simultaneousGesture(TapGesture().onEnded {
+                                        viewModel.selectedToDoItem = toDoItem
+                                        viewModel.selectedToDoGroup = toDoGroup
+                                    })
                                     
                                 }
                                 .onDelete { offsets in
@@ -94,12 +110,14 @@ struct HomeView: View {
                             }
                         }
                     }
+                    .scrollContentBackground(.hidden)
                 }
             }
+            .background(.blueGrayBackground)
         }
     }
 }
 
-#Preview {
-    HomeView()
-}
+//#Preview {
+//    HomeView()
+//}
