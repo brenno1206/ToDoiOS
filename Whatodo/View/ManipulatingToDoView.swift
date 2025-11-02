@@ -89,6 +89,7 @@ struct ManipulatingToDoView: View {
                         if let selectedToDoItem = viewModel.selectedToDoItem {
                             title = selectedToDoItem.title
                             priority = selectedToDoItem.priority
+                            group = viewModel.selectedToDoGroup
                         }
                         
                     case .addItem:

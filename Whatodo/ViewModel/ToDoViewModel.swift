@@ -10,10 +10,29 @@ import Combine
 import SwiftUI
 
 class ToDoViewModel: ObservableObject {
-    @Published var toDoGroups: [ToDoGroup] = []
+    @Published var toDoGroups: [ToDoGroup] = [
+        ToDoGroup(title: "Work", toDos: [
+            ToDoItem(title: "Finish report",priority: .important),
+            ToDoItem(title: "Code review",priority: .important)
+        ]),
+        ToDoGroup(title: "Personal", toDos: [
+            ToDoItem(title: "Buy groceries",priority: .casual)
+            ]),
+        ToDoGroup(title: "UVV", toDos: [
+            ToDoItem(title: "IC", priority: ToDoItemPriority.important),
+            ToDoItem(title: "Prova", priority: ToDoItemPriority.urgent),
+        ]),
+        ToDoGroup(title: "Swift", toDos: [
+        ]),
+    ]
     
     @Published var selectedToDoItem: ToDoItem?
     @Published var selectedToDoGroup: ToDoGroup?
+    @Published var isAddingToDo: Bool = false
+    @Published var isAddingGroup: Bool = false
+    @Published var isEditingToDo: Bool = false
+    @Published var isEditingGroup: Bool = false
+    
     
     
     func toggleCompletion(group: ToDoGroup, item: ToDoItem) {

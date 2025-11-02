@@ -10,36 +10,37 @@ import SwiftUI
 struct HomeView: View {
     
     @StateObject var viewModel = ToDoViewModel()
+    
     func toDoGropuHeader(toDoGroup : ToDoGroup) -> some View {
-        NavigationLink {
-            ManipulatingToDoView(viewModel: viewModel, type: ToDoManipulating.editGroup)
+        
+        Menu {
+            Button {
+                viewModel.selectedToDoGroup = toDoGroup
+                viewModel.isEditingGroup = true
+            } label: {
+                Label("Edit Group", systemImage: "pencil")
+            }
+            Button(role: .destructive) {                viewModel.deleteGroup(toDoGroup: toDoGroup)
+            } label: {
+                Label("Delete Group", systemImage: "trash.fill")
+            }
         } label: {
             HStack {
                 Text(toDoGroup.title)
                     .foregroundStyle(.blueGrayForeground)
-                    .font(.system(size: 20, weight: .light))
+                    .font(.system(size: 20, weight: .regular))
+                    .textCase(nil)
                 Spacer()
-                Button {
-                    // ALERT: isDeleting
-                    // Are you sure you want to delect this group and all its tasks
-                    viewModel.deleteGroup(toDoGroup: toDoGroup)
-                } label: {
-                    Image(systemName: "minus.circle.fill")
-                        .font(.system(size: 20))
-                        .foregroundStyle(.gray)
-                        .padding(.trailing, 20)
-                }
             }
         }
-        .simultaneousGesture(TapGesture().onEnded {
-            viewModel.selectedToDoGroup = toDoGroup
-        })
+
     }
     
     var body: some View {
         NavigationStack {
             ZStack {
                 VStack(alignment: .leading) {
+                    // HEADER
                     HStack {
                         Text("ToDo List")
                             .font(.system(size: 35, weight: .bold))
@@ -67,14 +68,27 @@ struct HomeView: View {
                                 .foregroundStyle(.blueGrayForeground)
                         }
                     }
-                    List {
-                        ForEach(viewModel.toDoGroups){ toDoGroup in
-                            Section(header: toDoGropuHeader(toDoGroup:  toDoGroup)) {
-                                ForEach(toDoGroup.toDos) { toDoItem in
-                                    NavigationLink {
-                                        ManipulatingToDoView(viewModel: viewModel, type: ToDoManipulating.editItem)
-                                            
-                                    } label: {
+                    // BODY
+                    if (viewModel.toDoGroups.isEmpty) {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Text("Any ToDo added yet? Add one!")
+                                .font(.system(size: 20, weight: .medium))
+                                .padding(.horizontal, 25)
+                                .foregroundStyle(.blueGrayForeground)
+                            Spacer()
+                        }
+                        Spacer()
+                    } else {
+                        List {
+                            ForEach(viewModel.toDoGroups){ toDoGroup in
+                                
+                                toDoGropuHeader(toDoGroup: toDoGroup)           .listRowBackground(Color.clear)               .listRowInsets(EdgeInsets(top: 20, leading: 25, bottom: 5, trailing: 20))                  .listRowSeparator(.hidden)
+                                
+                                Section {
+                                    ForEach(toDoGroup.toDos) { toDoItem in
+                                        
                                         VStack {
                                             HStack {
                                                 Button {
@@ -87,9 +101,6 @@ struct HomeView: View {
                                                         .foregroundStyle(toDoItem.isCompleted ? .gray : .primary)
                                                 }
                                                 .buttonStyle(.plain)
-
-                                                
-                                                
                                                 Spacer()
                                                 Circle()
                                                     .frame(width: 12, height: 12)
@@ -97,27 +108,38 @@ struct HomeView: View {
                                             }
                                             .padding(.vertical, 5)
                                         }
+                                        .contentShape(Rectangle())
+                                        .onTapGesture {
+                                            viewModel.selectedToDoGroup = toDoGroup
+                                            viewModel.selectedToDoItem = toDoItem
+                                            viewModel.isEditingToDo = true
+                                        }
+                                        
                                     }
-                                    .simultaneousGesture(TapGesture().onEnded {
-                                        viewModel.selectedToDoItem = toDoItem
-                                        viewModel.selectedToDoGroup = toDoGroup
-                                    })
-                                    
+                                    .onDelete { offsets in
+                                        viewModel.deleteToDoItem(in: toDoGroup, at: offsets)
+                                    }
                                 }
-                                .onDelete { offsets in
-                                    viewModel.deleteToDoItem(in: toDoGroup, at: offsets)
-                                }
+                                .listSectionSpacing(0)
                             }
                         }
+                        .listStyle(.insetGrouped)
+                        .scrollContentBackground(.hidden)
+                        
                     }
-                    .scrollContentBackground(.hidden)
                 }
             }
             .background(.blueGrayBackground)
+            .navigationDestination(isPresented: $viewModel.isEditingToDo) {
+                ManipulatingToDoView(viewModel: viewModel, type: .editItem)
+            }
+            .navigationDestination(isPresented: $viewModel.isEditingGroup) {
+                ManipulatingToDoView(viewModel: viewModel, type: ToDoManipulating.editGroup)
+            }
         }
     }
 }
 
-//#Preview {
-//    HomeView()
-//}
+#Preview {
+    HomeView()
+}
